@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Trading Brain (Python)
+  trading-brain:
+    build:
+      context: ./python_brain
+      dockerfile: Dockerfile
+    container_name: trading-brain
+    restart: unless-stopped
+    environment:
+      - SYMBOL=${SYMBOL:-BTCUSDT}
+      - INTERVAL_SEC=${INTERVAL_SEC:-60}
+      - EXECUTOR_MODE=http
+      - TS_EXECUTOR_URL=http://executor:3001
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    depends_on:
+      - executor
+    networks:
+      - trading-net
+
+  # Trade Executor (TypeScript)
+  executor:
+    build:
+      context: ./ts_executor
+      dockerfile: Dockerfile
+    container_name: ts-executor
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - BINANCE_API_KEY=${BINANCE_API_KEY}
+      - BINANCE_SECRET_KEY=${BINANCE_SECRET_KEY}
+      - EXECUTOR_AUTH_TOKEN=${EXECUTOR_AUTH_TOKEN}
+    networks:
+      - trading-net
+
+  # Dashboard (React)
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: trading-dashboard
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - trading-net
+
+networks:
+  trading-net:
+    driver: bridge
