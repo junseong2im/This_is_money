@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.local
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# IDE  
+.vscode/
+.idea/
+.agent/
+
+# Large files
+*.csv
+*.pkl
+*.log
+backtest.py
+
+# OS
+.DS_Store
+Thumbs.db

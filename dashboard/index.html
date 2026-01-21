@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>트레이딩 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+      :root{
+        --bg0:#05070B;
+        --bg1:#070B12;
+        --panel: rgba(12, 18, 28, 0.72);
+        --panel2: rgba(10, 14, 22, 0.82);
+        --stroke: rgba(110, 231, 183, 0.14);
+        --stroke2: rgba(148, 163, 184, 0.18);
+        --text:#E7EEF9;
+        --muted:#94A3B8;
+        --muted2:#64748B;
+        --accent:#34D399;
+        --accent2:#22D3EE;
+        --danger:#FB7185;
+        --warning:#FBBF24;
+        --shadow: 0 18px 60px rgba(0,0,0,0.45);
+        --radius: 16px;
+      }
+
+      html, body, #root { height: 100%; }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background:
+          radial-gradient(1200px 600px at 20% 15%, rgba(34, 211, 238, 0.14), transparent 55%),
+          radial-gradient(900px 520px at 75% 35%, rgba(52, 211, 153, 0.12), transparent 55%),
+          radial-gradient(900px 600px at 55% 95%, rgba(99, 102, 241, 0.08), transparent 60%),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+        color: var(--text);
+        margin: 0;
+        overflow: hidden;
+      }
+
+      .font-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+      /* 패널 프리미티브 */
+      .glass {
+        background: var(--panel);
+        border: 1px solid var(--stroke2);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .glass-strong {
+        background: var(--panel2);
+        border: 1px solid rgba(52, 211, 153, 0.22);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .hairline {
+        background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.35), transparent);
+        height: 1px;
+      }
+
+      /* 작은 UI 프리미티브(컴포넌트 파일을 늘리지 않기 위해 전역 정의) */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(2, 6, 23, 0.35);
+      }
+      .chip-strong {
+        border-color: rgba(52, 211, 153, 0.22);
+        background: rgba(16, 185, 129, 0.10);
+      }
+
+      /* 스크롤바 */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: rgba(2, 6, 23, 0.55); }
+      ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 999px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.40); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
