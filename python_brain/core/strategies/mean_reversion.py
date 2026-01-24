@@ -28,9 +28,9 @@ class MeanReversionStrategy(BaseStrategy):
     STRONG_PUMP = 0.012
     
     # 손절/익절
-    BASE_SL_ATR = 0.8   # 빠른 손절
+    BASE_SL_ATR = 1.5   # Adjusted: Wider stop for realistic volatility
     WEAK_TP_ATR = 1.0   # 약한 신호: 빠른 익절
-    STRONG_TP_ATR = 1.8  # 강한 신호: 더 큰 목표
+    STRONG_TP_ATR = 2.0  # 강한 신호: 더 큰 목표
 
     def generate(self, f: MarketFeatures) -> Optional[StrategySignal]:
         # 1. 추세장 필터 (평균회귀는 횡보장에서만)
