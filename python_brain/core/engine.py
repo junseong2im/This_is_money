@@ -53,7 +53,8 @@ class TradingEngine:
         if not best:
             return None
 
-        size = position_size(equity, best)
+        # Pass current ATR pct for volatility targeting
+        size = position_size(equity, best, current_volatility=features.atr_pct)
         if size <= 0:
             return None
 

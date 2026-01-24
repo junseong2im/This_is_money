@@ -74,22 +74,22 @@ def build_features(symbol: str) -> MarketFeatures:
     price = float(j["markPrice"])
     funding_rate = float(j.get("lastFundingRate", 0.0))
     
-    # 2) klines (5분봉 30개 = 2.5시간 데이터)
-    # DataProcessor.add_indicators relies on having enough data for rolling windows (e.g. 30).
+    # 2) klines (5분봉 120개 = 10시간 데이터)
+    # Hurst Exponent needs ~100 candles
     kr = requests.get(
         "https://fapi.binance.com/fapi/v1/klines",
-        params={"symbol": symbol, "interval": "5m", "limit": 50},
+        params={"symbol": symbol, "interval": "5m", "limit": 120},
         timeout=5
     )
     kr.raise_for_status()
     klines = kr.json()
     
-    if len(klines) < 35:
+    if len(klines) < 105:
         # 데이터 부족시 기본값 반환
         return MarketFeatures(
             price=price, atr_pct=0.01, atr_value=price * 0.01, adx=20,
             ema_fast_slope=0.0, ema_slow_slope=0.0, volume_z=1.0,
-            funding_rate=funding_rate, ret_1=0.0, ret_5=0.0
+            funding_rate=funding_rate, ret_1=0.0, ret_5=0.0, hurst=0.5
         )
     
     # 3) Pandas DataProcessor로 계산
@@ -109,7 +109,8 @@ def build_features(symbol: str) -> MarketFeatures:
         volume_z=last['volume_z'],
         funding_rate=funding_rate,
         ret_1=last['ret_1'],
-        ret_5=last['ret_5']
+        ret_5=last['ret_5'],
+        hurst=last['hurst']
     )
 
 # =========================

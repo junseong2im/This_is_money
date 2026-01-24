@@ -46,7 +46,8 @@ class BacktestEngine:
                 volume_z=row['volume_z'],
                 funding_rate=funding,
                 ret_1=row['ret_1'],
-                ret_5=row['ret_5']
+                ret_5=row['ret_5'],
+                hurst=row['hurst']
             )
 
             # 1. Check existing position (SL/TP)
