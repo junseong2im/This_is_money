@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class MarketFeatures:
     price: float
     atr_pct: float
-    atr_value: float  # ATR in price units (e.g., $500)
+    atr_value: float
     adx: float
     ema_fast_slope: float
     ema_slow_slope: float
@@ -12,3 +12,4 @@ class MarketFeatures:
     funding_rate: float
     ret_1: float
     ret_5: float
+    hurst: float = 0.5  # New feature

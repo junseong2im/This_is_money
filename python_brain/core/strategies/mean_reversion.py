@@ -17,20 +17,20 @@ class MeanReversionStrategy(BaseStrategy):
     name = "mean_reversion"
     
     # 파라미터
-    MAX_ADX = 23  # 추세장 회피 (더 엄격)
-    MAX_VOLUME_Z = 2.0  # 극단 거래량 회피
-    MIN_ATR_PCT = 0.004
+    MAX_ADX = 25  # 추세장 회피 (더 엄격)
+    MAX_VOLUME_Z = 3.0  # 극단 거래량 회피
+    MIN_ATR_PCT = 0.002
     
     # 진입 레벨 (약/중/강)
-    WEAK_DIP = -0.012   # 1.2% 하락
-    STRONG_DIP = -0.020  # 2.0% 하락
-    WEAK_PUMP = 0.012
-    STRONG_PUMP = 0.020
+    WEAK_DIP = -0.006   # 0.6% 하락 (Optimized)
+    STRONG_DIP = -0.012  # 1.2% 하락
+    WEAK_PUMP = 0.006
+    STRONG_PUMP = 0.012
     
     # 손절/익절
-    BASE_SL_ATR = 0.8   # 빠른 손절
+    BASE_SL_ATR = 1.5   # Adjusted: Wider stop for realistic volatility
     WEAK_TP_ATR = 1.0   # 약한 신호: 빠른 익절
-    STRONG_TP_ATR = 1.8  # 강한 신호: 더 큰 목표
+    STRONG_TP_ATR = 2.0  # 강한 신호: 더 큰 목표
 
     def generate(self, f: MarketFeatures) -> Optional[StrategySignal]:
         # 1. 추세장 필터 (평균회귀는 횡보장에서만)

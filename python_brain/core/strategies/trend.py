@@ -17,12 +17,12 @@ class TrendStrategy(BaseStrategy):
     name = "trend"
     
     # 파라미터
-    MIN_ADX = 20
-    MIN_ATR_PCT = 0.005
-    STRONG_ADX = 30  # 강한 추세 기준
-    BASE_SL_ATR = 1.8
-    BASE_TP_ATR = 2.5
-    MAX_TP_ATR = 5.0
+    MIN_ADX = 30           # Optimized: Very strong trend only
+    MIN_ATR_PCT = 0.002
+    STRONG_ADX = 40        # Higher threshold for "Strong"
+    BASE_SL_ATR = 1.5      # Optimized: Moderate stop
+    BASE_TP_ATR = 3.0      # Optimized: 2:1 Reward Risk ratio
+    MAX_TP_ATR = 6.0
 
     def generate(self, f: MarketFeatures) -> Optional[StrategySignal]:
         # 1. 기본 조건
@@ -51,7 +51,7 @@ class TrendStrategy(BaseStrategy):
         tp_mult = min(tp_mult, self.MAX_TP_ATR)
         
         # 6. Long 조건
-        if f.ema_fast_slope > 0.001 and f.ema_slow_slope > 0:
+        if f.ema_fast_slope > 0.0008 and f.ema_slow_slope > 0.0002:
             # 모멘텀 확인 또는 펀딩비 유리
             if not (long_momentum or funding_long_signal):
                 return None
@@ -72,7 +72,7 @@ class TrendStrategy(BaseStrategy):
             )
         
         # 7. Short 조건
-        if f.ema_fast_slope < -0.001 and f.ema_slow_slope < 0:
+        if f.ema_fast_slope < -0.0008 and f.ema_slow_slope < -0.0002:
             if not (short_momentum or funding_short_signal):
                 return None
             

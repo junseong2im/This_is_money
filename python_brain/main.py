@@ -4,6 +4,7 @@ import traceback
 
 from core.engine import TradingEngine
 from core.features import MarketFeatures
+from core.data_processor import DataProcessor
 
 from infrastructure.position_tracker import PositionTracker
 from infrastructure.executor import TradeExecutor
@@ -73,94 +74,43 @@ def build_features(symbol: str) -> MarketFeatures:
     price = float(j["markPrice"])
     funding_rate = float(j.get("lastFundingRate", 0.0))
     
-    # 2) klines (5분봉 30개 = 2.5시간 데이터)
+    # 2) klines (5분봉 120개 = 10시간 데이터)
+    # Hurst Exponent needs ~100 candles
     kr = requests.get(
         "https://fapi.binance.com/fapi/v1/klines",
-        params={"symbol": symbol, "interval": "5m", "limit": 30},
+        params={"symbol": symbol, "interval": "5m", "limit": 120},
         timeout=5
     )
     kr.raise_for_status()
     klines = kr.json()
     
-    if len(klines) < 20:
+    if len(klines) < 105:
         # 데이터 부족시 기본값 반환
         return MarketFeatures(
             price=price, atr_pct=0.01, atr_value=price * 0.01, adx=20,
             ema_fast_slope=0.0, ema_slow_slope=0.0, volume_z=1.0,
-            funding_rate=funding_rate, ret_1=0.0, ret_5=0.0
+            funding_rate=funding_rate, ret_1=0.0, ret_5=0.0, hurst=0.5
         )
     
-    # OHLCV 파싱
-    highs = [float(k[2]) for k in klines]
-    lows = [float(k[3]) for k in klines]
-    closes = [float(k[4]) for k in klines]
-    volumes = [float(k[5]) for k in klines]
+    # 3) Pandas DataProcessor로 계산
+    df = DataProcessor.to_dataframe(klines)
+    df = DataProcessor.add_indicators(df)
     
-    # 3) ATR 계산 (14기간)
-    trs = []
-    for i in range(1, len(klines)):
-        tr = max(
-            highs[i] - lows[i],
-            abs(highs[i] - closes[i-1]),
-            abs(lows[i] - closes[i-1])
-        )
-        trs.append(tr)
-    atr_value = sum(trs[-14:]) / 14 if len(trs) >= 14 else sum(trs) / max(len(trs), 1)
-    atr_pct = atr_value / price
-    
-    # 4) ADX 간략 계산 (DX 평균)
-    plus_dm = []
-    minus_dm = []
-    for i in range(1, len(klines)):
-        up = highs[i] - highs[i-1]
-        down = lows[i-1] - lows[i]
-        plus_dm.append(up if up > down and up > 0 else 0)
-        minus_dm.append(down if down > up and down > 0 else 0)
-    
-    atr_sum = sum(trs[-14:]) if len(trs) >= 14 else sum(trs)
-    plus_di = 100 * sum(plus_dm[-14:]) / max(atr_sum, 0.0001)
-    minus_di = 100 * sum(minus_dm[-14:]) / max(atr_sum, 0.0001)
-    dx = 100 * abs(plus_di - minus_di) / max(plus_di + minus_di, 0.0001)
-    adx = dx  # 단순화 (실제는 smoothed)
-    
-    # 5) EMA slope (9기간 fast, 21기간 slow)
-    def ema(data, period):
-        if len(data) < period:
-            return data[-1] if data else 0
-        k = 2 / (period + 1)
-        result = data[0]
-        for val in data[1:]:
-            result = val * k + result * (1 - k)
-        return result
-    
-    ema_fast_now = ema(closes, 9)
-    ema_fast_prev = ema(closes[:-1], 9)
-    ema_slow_now = ema(closes, 21)
-    ema_slow_prev = ema(closes[:-1], 21)
-    
-    ema_fast_slope = (ema_fast_now - ema_fast_prev) / max(ema_fast_prev, 0.0001)
-    ema_slow_slope = (ema_slow_now - ema_slow_prev) / max(ema_slow_prev, 0.0001)
-    
-    # 6) Volume Z-score
-    vol_mean = sum(volumes) / len(volumes)
-    vol_std = (sum((v - vol_mean) ** 2 for v in volumes) / len(volumes)) ** 0.5
-    volume_z = (volumes[-1] - vol_mean) / max(vol_std, 0.0001)
-    
-    # 7) 수익률 (1분, 5분 approximation from 5m candles)
-    ret_5 = (closes[-1] - closes[-2]) / closes[-2] if len(closes) >= 2 else 0.0
-    ret_1 = ret_5 / 5  # 5분봉 기준 추정
+    # 마지막 캔들이 '현재' 캔들
+    last = df.iloc[-1]
     
     return MarketFeatures(
-        price=price,
-        atr_pct=atr_pct,
-        atr_value=atr_value,
-        adx=adx,
-        ema_fast_slope=ema_fast_slope,
-        ema_slow_slope=ema_slow_slope,
-        volume_z=volume_z,
+        price=price, # markPrice (funding-adjusted logic might prefer this over kline close)
+        atr_pct=last['atr_pct'],
+        atr_value=last['atr_value'],
+        adx=last['adx'],
+        ema_fast_slope=last['ema_fast_slope'],
+        ema_slow_slope=last['ema_slow_slope'],
+        volume_z=last['volume_z'],
         funding_rate=funding_rate,
-        ret_1=ret_1,
-        ret_5=ret_5
+        ret_1=last['ret_1'],
+        ret_5=last['ret_5'],
+        hurst=last['hurst']
     )
 
 # =========================
