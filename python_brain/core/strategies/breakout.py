@@ -17,9 +17,9 @@ class BreakoutStrategy(BaseStrategy):
     name = "breakout"
     
     # 파라미터 (튜닝 가능)
-    MIN_ADX = 25
-    MIN_ATR_PCT = 0.008
-    MIN_VOLUME_Z = 0.8
+    MIN_ADX = 20
+    MIN_ATR_PCT = 0.002  # Optimized for standard market
+    MIN_VOLUME_Z = 0.5   # Lowered volume threshold
     BASE_SL_ATR = 1.2      # 손절: 1.2 ATR (더 타이트하게)
     BASE_TP_ATR = 2.0      # 기본 목표: 2.0 ATR
     MAX_TP_ATR = 4.0       # 최대 목표 (강한 추세시)

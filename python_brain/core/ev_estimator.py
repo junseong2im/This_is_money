@@ -41,9 +41,18 @@ class EVEstimator:
         Returns:
             StrategyStats (ev, confidence, win_rate, avg_win, avg_loss)
         """
-        # 1. 거래 수 부족 시 거부
+        # 1. 거래 수 부족 시 (부트스트랩)
+        # 초기 탐색을 위해 기본값 제공
         if len(trades) < min_trades:
-            return StrategyStats(strategy, regime, 0, 0, 0, -1, 0)
+            return StrategyStats(
+                name=strategy,
+                regime=regime,
+                win_rate=0.5,
+                avg_win=0.02,
+                avg_loss=0.01,
+                ev=0.002,  # 0.2% expected return to encourage exploration
+                confidence=0.5
+            )
         
         # 2. PnL 추출
         pnl_list = [float(t.get("pnl", 0)) for t in trades]

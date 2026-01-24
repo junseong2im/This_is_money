@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 Direction = Literal["long", "short"]
 
@@ -19,3 +19,4 @@ class StrategyStats:
     avg_loss: float
     ev: float
     confidence: float
+    signal: Optional[StrategySignal] = None

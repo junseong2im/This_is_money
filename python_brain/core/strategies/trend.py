@@ -18,7 +18,7 @@ class TrendStrategy(BaseStrategy):
     
     # 파라미터
     MIN_ADX = 20
-    MIN_ATR_PCT = 0.005
+    MIN_ATR_PCT = 0.002 # Optimized
     STRONG_ADX = 30  # 강한 추세 기준
     BASE_SL_ATR = 1.8
     BASE_TP_ATR = 2.5
@@ -51,7 +51,7 @@ class TrendStrategy(BaseStrategy):
         tp_mult = min(tp_mult, self.MAX_TP_ATR)
         
         # 6. Long 조건
-        if f.ema_fast_slope > 0.001 and f.ema_slow_slope > 0:
+        if f.ema_fast_slope > 0.0005 and f.ema_slow_slope > 0:
             # 모멘텀 확인 또는 펀딩비 유리
             if not (long_momentum or funding_long_signal):
                 return None
@@ -72,7 +72,7 @@ class TrendStrategy(BaseStrategy):
             )
         
         # 7. Short 조건
-        if f.ema_fast_slope < -0.001 and f.ema_slow_slope < 0:
+        if f.ema_fast_slope < -0.0005 and f.ema_slow_slope < 0:
             if not (short_momentum or funding_short_signal):
                 return None
             

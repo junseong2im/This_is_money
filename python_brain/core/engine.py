@@ -1,6 +1,7 @@
 from core.regime import detect_regime, MarketRegime
 from core.ev_estimator import EVEstimator
 from core.history_store import StrategyHistoryStore
+from dataclasses import asdict
 from core.selector import select_best
 from core.sizing import position_size
 
@@ -44,6 +45,8 @@ class TradingEngine:
             stat = self.ev.estimate(
                 s.name, regime.value, trades, features.funding_rate
             )
+            # Attach signal to stat so we can retrieve it later
+            stat.signal = signal
             stats.append(stat)
 
         best = select_best(stats)
@@ -58,5 +61,6 @@ class TradingEngine:
             "strategy": best.name,
             "regime": best.regime,
             "size": size,
-            "ev": best.ev
+            "ev": best.ev,
+            "signal": asdict(best.signal) if best.signal else None
         }
